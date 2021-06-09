@@ -17,6 +17,7 @@ from utils import NestedNamespace
 def compute_accuracy(logits: torch.Tensor, labels: tp.Union[torch.Tensor, int]) -> float:
     return torch.mean((torch.argmax(logits, dim=1) == labels).float()).item()
 
+
 def main(params: NestedNamespace):
     chunk_len = int(params.sample_rate * params.chunk_len_ratio)
     chunk_shift = int(params.sample_rate * params.chunk_shift_ratio)
@@ -64,12 +65,6 @@ def main(params: NestedNamespace):
                     chunks_accuracy.append(compute_accuracy(logits, label))
                     wavs_accuracy += (torch.argmax(logits.sum(dim=0)) == label).item()
 
-                print("mean train loss", np.mean(losses))
-                print("mean train accuracy", np.mean(accuracy))
-                print("mean test loss", np.mean(losses_test))
-                print("mean test chunk accuracy", np.mean(chunks_accuracy))
-                print("mean test wav accuracy", wavs_accuracy / len(dataset_val))
-                print()
                 wandb.log({'train accuracy': np.mean(accuracy), 'train loss': np.mean(losses), 
                 'test loss': np.mean(losses_test), 'test chunk accuracy': np.mean(chunks_accuracy), 
                 'test wav accuracy': wavs_accuracy / len(dataset_val)})
@@ -85,5 +80,6 @@ if __name__ == "__main__":
       raise ValueError("Only two models are supported, use cnn or sinc.")
     wandb.init(project='SincNet', config={'model type': params.model.type})
     main(params)
+
 # cd dr8 && for i in $( ls | grep [A-Z] ); do mv -i $i `echo $i | tr 'A-Z' 'a-z'`; done && cd ..
 # for i in $( find dr8 -type f ); do mv -i $i `echo $i | tr 'A-Z' 'a-z'`; done
