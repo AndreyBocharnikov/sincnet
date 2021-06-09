@@ -13,5 +13,8 @@ chunk_shift: 0.01
 # optimization
 lr: 0.001
 batch_size: 128
-n_epochs: 1500
+n_epochs: 66666 #1500
 verbose_every: 10
+
+# other
+device: 'cuda:0'
