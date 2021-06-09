@@ -7,8 +7,8 @@ data:
 
 # sound
 sample_rate: 16000
-chunk_len: 0.2
-chunk_shift: 0.01
+chunk_len_ratio: 0.2
+chunk_shift_ratio: 0.01
 
 # optimization
 lr: 0.001
