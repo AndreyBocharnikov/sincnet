@@ -1,0 +1,17 @@
+# data
+data:
+  timit:
+    path: datasets/timit
+    n_classes: 462
+
+
+# sound
+sample_rate: 16000
+chunk_len: 0.2
+chunk_shift: 0.01
+
+# optimization
+lr: 0.001
+batch_size: 128
+n_epochs: 1500
+verbose_every: 10
