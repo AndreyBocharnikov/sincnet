@@ -4,6 +4,10 @@ data:
     path: datasets/timit
     n_classes: 462
 
+# model
+model:
+  type: sinc
+  pretrain: null
 
 # sound
 sample_rate: 16000
@@ -14,7 +18,8 @@ chunk_shift_ratio: 0.01
 lr: 0.001
 batch_size: 128
 n_epochs: 66666 #1500
-verbose_every: 10
 
 # other
 device: 'cuda:0'
+verbose_every: 10
+save_path: '/content/drive/MyDrive/vk_intership/2021/research/weights/'
