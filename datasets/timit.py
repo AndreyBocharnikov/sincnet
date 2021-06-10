@@ -34,25 +34,13 @@ class TimitVal(Dataset):
         self.labels = np.load(os.path.join(path, 'labels.npy'), allow_pickle=True).item()
         with open(os.path.join(path, 'test.scp')) as f:
             self.test_samples = f.read().splitlines()
+        print(self.test_samples[0])
         self.wav_path = os.path.join(self.path, self.test_samples[self.cur_wav_id])
         self.cur_wav, _ = torchaudio.load(self.wav_path)
 
     def __len__(self):
         return len(self.test_samples)
 
-    """
-    def __getitem__(self, _):
-        label = self.labels[self.wav_path]
-        chunk = self.cur_wav[0, self.cur_chunk:self.chunk_len]
-        self.cur_chunk += self.chunk_shift
-        chunk_id = self.cur_wav_id
-        if self.cur_chunk >= len(self.cur_wav[0]):
-            self.cur_chunk = 0
-            self.cur_wav_id += 1
-            self.wav_path = os.path.join(self.path, self.test_samples[self.cur_wav_id])
-            self.cur_wav, _ = torchaudio.load(self.wav_path)
-        return chunk, label, chunk_id
-    """
     def __getitem__(self, idx):
         wav_path = self.test_samples[idx]
         label = self.labels[wav_path]
