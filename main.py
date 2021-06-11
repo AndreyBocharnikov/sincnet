@@ -9,7 +9,7 @@ import torch.optim
 import wandb  # sudo apt install libpython3.7-dev python3.7 -m pip install wandb
 import numpy as np
 
-from datasets.timit import TimitTrain, TimitVal
+from datasets.timit import TimitTrain, TimitEval
 from model import SincNet
 from utils import NestedNamespace, compute_chunk_info
 
@@ -21,7 +21,7 @@ def compute_accuracy(logits: torch.Tensor, labels: tp.Union[torch.Tensor, int]) 
 def main(params: NestedNamespace):
     chunk_len, chunk_shift = compute_chunk_info(params)
     dataset_train = TimitTrain(params.data.timit.path, chunk_len=chunk_len)
-    dataset_val = TimitVal(params.data.timit.path, chunk_len, chunk_shift)
+    dataset_evaluation = TimitEval(params.data.timit.path, chunk_len, chunk_shift, 'test.scp')
     dataloader = DataLoader(dataset_train, batch_size=params.batch_size, shuffle=True, drop_last=True, num_workers=2)
 
     sinc_net = SincNet(chunk_len, params.data.timit.n_classes, params.model.type)
@@ -57,7 +57,7 @@ def main(params: NestedNamespace):
                 chunks_accuracy = []
                 losses_test = []
                 wavs_accuracy = 0
-                for chunks, label, n_chunks in dataset_val:
+                for chunks, label, n_chunks in dataset_evaluation:
                     chunks = chunks.to(params.device)
                     logits = sinc_net(chunks)
                     loss = criterion(logits, torch.Tensor([label] * n_chunks).long().to(params.device))
@@ -68,7 +68,7 @@ def main(params: NestedNamespace):
 
                 wandb.log({'train accuracy': np.mean(accuracy), 'train loss': np.mean(losses),
                            'test loss': np.mean(losses_test), 'test chunk accuracy': np.mean(chunks_accuracy),
-                           'test wav accuracy': wavs_accuracy / len(dataset_val)})
+                           'test wav accuracy': wavs_accuracy / len(dataset_evaluation), 'epoch': i})
                 torch.save(
                     {'model_state_dict': sinc_net.state_dict(), 'optimizer_state_dict': optim.state_dict(), 'epoch': i},
                     os.path.join(params.save_path, params.model.type + str(i) + '.pt'))

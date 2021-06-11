@@ -4,6 +4,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from torchsummary import summary
 
 
 class SincConv(nn.Module):
@@ -78,7 +79,7 @@ class MLPBlock(nn.Module):
 
 
 class SincNet(nn.Module):
-    def __init__(self, wav_len, n_classes, conv_type: str):
+    def __init__(self, chunk_len, n_classes, conv_type: str):
         super().__init__()
         if conv_type not in ['cnn', 'sinc']:
             raise ValueError("Only two types of first convolution are supported, cnn and sinc.")
@@ -86,27 +87,30 @@ class SincNet(nn.Module):
             first_block = nn.Conv1d
         else:
             first_block = SincConv
-        ln1 = nn.LayerNorm(wav_len)
-        cnn_blocks = nn.Sequential(CNNBlock(wav_len, first_block, 1, 80, 251),
-                                   CNNBlock(wav_len // 3, nn.Conv1d, 80, 60, 5),
-                                   CNNBlock(wav_len // 9, nn.Conv1d, 60, 60, 5))
+        ln1 = nn.LayerNorm(chunk_len)
+        cnn_blocks = nn.Sequential(CNNBlock(chunk_len, first_block, 1, 80, 251),
+                                   CNNBlock(chunk_len // 3, nn.Conv1d, 80, 60, 5),
+                                   CNNBlock(chunk_len // 9, nn.Conv1d, 60, 60, 5))
         flatten = nn.Flatten(start_dim=1)
-        ln2 = nn.LayerNorm(wav_len // 27 * 60)
-        mlp_blocks = nn.Sequential(MLPBlock(wav_len // 27 * 60, 2048),
-                                        MLPBlock(2048, 2048),
-                                        MLPBlock(2048, 2048))
-
+        ln2 = nn.LayerNorm(chunk_len // 27 * 60)
+        mlp_blocks = nn.Sequential(MLPBlock(chunk_len // 27 * 60, 2048),
+                                   MLPBlock(2048, 2048),
+                                   MLPBlock(2048, 2048))
         self.backbone = nn.Sequential(ln1, cnn_blocks, flatten, ln2, mlp_blocks)
         self.classification_head = nn.Linear(2048, n_classes)
 
     def forward(self, wavs):
-        return self.net(self.backbone(wavs))
+        return self.classification_head(self.backbone(wavs))
 
     def compute_d_vectors(self, wavs):
         return self.backbone(wavs)
 
+
 if __name__ == "__main__":
-    wav_len = 16000 // 5
-    x = torch.rand((128, 1, wav_len))
-    net = SincNet(wav_len, 10, 'sinc')
-    print(net(x).shape)
+    sincnet = SincNet(3200, 462, 'sinc')
+    #print(summary(sincnet, (1, 3200)))
+    model_parameters = filter(lambda p: p.requires_grad, sincnet.parameters())
+    params = sum([np.prod(p.size()) for p in model_parameters])
+    print(params)
+
+# 22906880 vs 45358

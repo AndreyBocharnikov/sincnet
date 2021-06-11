@@ -27,14 +27,13 @@ class TimitTrain(Dataset):
         return torch.unsqueeze(chunk, 0) * volume_gain, label
 
 
-class TimitVal(Dataset):
-    def __init__(self, path, chunk_len, chunk_shift):
+class TimitEval(Dataset):
+    def __init__(self, path: str, chunk_len: int, chunk_shift: int, split: str):
         self.cur_wav_id, self.cur_chunk = 0, 0
         self.path, self.chunk_len, self.chunk_shift = path, chunk_len, chunk_shift
         self.labels = np.load(os.path.join(path, 'labels.npy'), allow_pickle=True).item()
-        with open(os.path.join(path, 'test.scp')) as f:
+        with open(os.path.join(path, split)) as f:
             self.test_samples = f.read().splitlines()
-        print(self.test_samples[0])
         self.wav_path = os.path.join(self.path, self.test_samples[self.cur_wav_id])
         self.cur_wav, _ = torchaudio.load(self.wav_path)
 
