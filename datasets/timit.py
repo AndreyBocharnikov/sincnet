@@ -42,7 +42,9 @@ class TimitEval(Dataset):
 
     def __getitem__(self, idx):
         wav_path = self.test_samples[idx]
-        label = self.labels[wav_path]
+        label = self.labels.get(wav_path, None)
+        if label is None:
+          label = wav_path.split('/')[-2]
         wav, sr = torchaudio.load(os.path.join(self.path, wav_path))
         chunks = []
         for start in range(0, len(wav[0]) - self.chunk_len + 1, self.chunk_shift):

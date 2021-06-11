@@ -45,21 +45,20 @@ def compute_eer(logits: tp.List[tp.Tuple[float, bool]]):
 def main(params: NestedNamespace, args: Namespace, setup: tp.Union[compute_cosine_dists, compute_softmax_probs]):
     chunk_len, chunk_shift = compute_chunk_info(params)
     sinc_net = load_model(params, args, chunk_len)
-    d_vectors = np.load(args.d_vectors, allow_pickle=True).item()
+    d_vectors_speakers = np.load(args.d_vectors_speakers, allow_pickle=True).item()
+    d_vectors_imposters = np.load(args.d_vectors_imposters, allow_pickle=True).item()
 
-    evaluation_train = TimitEval(params.data.timit.path, chunk_len, chunk_shift, 'train.scp')
+    evaluation_test = TimitEval(params.data.timit.path, chunk_len, chunk_shift, 'test.scp')
     logits = []
+    all_imposters = list(d_vectors_imposters.keys())
     with torch.no_grad():
-        for chunks, label, _ in evaluation_train:
-            while True:
-                imposters_ids = np.random.choice(params.data.timit.n_classes, 10)
-                if label not in imposters_ids:
-                    break
-            imposters = [d_vectors.get(imposter) for imposter in imposters_ids]
-            speakers = imposters + [d_vectors.get(label)]
+        for chunks, label, _ in evaluation_test:
+            imposters_ids = np.random.choice(len(d_vectors_imposters), 10)
+            imposters = [d_vectors_imposters.get(all_imposters[imposter_id]) for imposter_id in imposters_ids]
+            speakers = imposters + [d_vectors_speakers.get(label)]
             values = setup(sinc_net, chunks, label, speakers, params.device)
             logits += values
-    classes = ([False] * 10 + [True]) * len(evaluation_train)
+    classes = ([False] * 10 + [True]) * len(evaluation_test)
     logits = list(zip(logits, classes))
     eer = compute_eer(logits)
     print(eer)
@@ -67,8 +66,10 @@ def main(params: NestedNamespace, args: Namespace, setup: tp.Union[compute_cosin
 
 if __name__ == "__main__":
     parser = ArgumentParser()
+    parser.add_argument('model_type')
     parser.add_argument('pretrained_model')
-    parser.add_argument('d_vectors')
+    parser.add_argument('d_vectors_speakers')
+    parser.add_argument('d_vectors_imposters')
     parser.add_argument('setup',
                         help='whether to use cosine distance or softmax posterior score, should be cos or softmax')
     args = parser.parse_args()
@@ -78,6 +79,17 @@ if __name__ == "__main__":
         setup = compute_cosine_dists
     else:
         setup = compute_softmax_probs
-    params = get_params('cfg_sv.yaml')
 
+    params = get_params('cfg_sv.yaml')
+    """
+    if params.model.type == 'cnn':
+      params.model.pretrained = '/content/drive/MyDrive/vk_intership/2021/research/weights/cnn18000.pt'
+      params.d_vectors.imposters = 'd_vectors_conv_unseen.npy'
+      params.d_vectors.speakers = 'd_vectors_conv.npy'
+    else:
+      params.model.pretrained = '/content/drive/MyDrive/vk_intership/2021/research/weights/sinc18000.pt'
+      params.d_vectors.imposters = 'd_vectors_sinc_unseen.npy'
+      params.d_vectors.speakers = 'd_vectors_sinc.npy' # TODO change copy-paste and nulls in yaml
+      # write in yaml all but model type, replacing it with ${} to be formated in future
+    """
     main(params, args, setup)
