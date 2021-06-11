@@ -12,18 +12,18 @@ from model import SincNet
 from utils import NestedNamespace, compute_chunk_info, get_params, load_model
 
 
-def compute_cosine_dists(model, chunks, label, speakers: tp.List[np.ndarray]):
-    d_vectors_chunk = model.compute_d_vectors(chunks)
-    cur_d_vector = (d_vectors_chunk / d_vectors_chunk.norm(p=2, dim=1, keepdim=True)).mean(dim=0)
+def compute_cosine_dists(model, chunks, label, speakers: tp.List[np.ndarray], device: str):
+    d_vectors_chunk = model.compute_d_vectors(chunks.to(device))
+    cur_d_vector = (d_vectors_chunk / d_vectors_chunk.norm(p=2, dim=1, keepdim=True)).mean(dim=0).cpu()
     distances = []
     for speaker in speakers:
-        distances.append(distance.cosine(cur_d_vector, speaker))
+        distances.append(1 - distance.cosine(cur_d_vector, speaker))
     return distances
 
 
-def compute_softmax_probs(model, chunks, label, speakers: tp.List[np.ndarray]):
-    logits = model.classification_head(torch.Tensor(speakers))[:, label]
-    return torch.softmax(logits, dim=0).numpy().tolist()
+def compute_softmax_probs(model, chunks, label, speakers: tp.List[np.ndarray], device: str):
+    logits = model.classification_head(torch.Tensor(speakers).to(device))[:, label]
+    return torch.softmax(logits, dim=0).cpu().numpy().tolist()
 
 
 def compute_eer(logits: tp.List[tp.Tuple[float, bool]]):
@@ -57,7 +57,7 @@ def main(params: NestedNamespace, args: Namespace, setup: tp.Union[compute_cosin
                     break
             imposters = [d_vectors.get(imposter) for imposter in imposters_ids]
             speakers = imposters + [d_vectors.get(label)]
-            values = setup(sinc_net, chunks, label, speakers)
+            values = setup(sinc_net, chunks, label, speakers, params.device)
             logits += values
     classes = ([False] * 10 + [True]) * len(evaluation_train)
     logits = list(zip(logits, classes))
@@ -78,6 +78,6 @@ if __name__ == "__main__":
         setup = compute_cosine_dists
     else:
         setup = compute_softmax_probs
-    params = get_params('cfg.yaml')
+    params = get_params('cfg_sv.yaml')
 
     main(params, args, setup)

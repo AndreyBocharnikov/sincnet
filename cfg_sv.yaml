@@ -1,0 +1,16 @@
+# data
+data:
+  timit:
+    path: datasets/timit
+    n_classes: 462
+
+# model
+model:
+  type: cnn
+
+# sound
+sample_rate: 16000
+chunk_len_ratio: 0.2
+chunk_shift_ratio: 0.01
+
+device: 'cuda:0'
