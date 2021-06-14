@@ -38,7 +38,6 @@ def main(params: NestedNamespace):
         accuracy, losses = [], []
         sinc_net.train()
         for j, batch in enumerate(dataloader):
-            print(j)
             optim.zero_grad()
             chunks, labels = batch
             chunks, labels = chunks.to(params.device), labels.to(params.device)
