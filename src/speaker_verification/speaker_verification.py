@@ -81,15 +81,4 @@ if __name__ == "__main__":
         setup = compute_softmax_probs
 
     params = get_params('cfg_sv.yaml')
-    """
-    if params.model.type == 'cnn':
-      params.model.pretrained = '/content/drive/MyDrive/vk_intership/2021/research/weights/cnn18000.pt'
-      params.d_vectors.imposters = 'd_vectors_conv_unseen.npy'
-      params.d_vectors.speakers = 'd_vectors_conv.npy'
-    else:
-      params.model.pretrained = '/content/drive/MyDrive/vk_intership/2021/research/weights/sinc18000.pt'
-      params.d_vectors.imposters = 'd_vectors_sinc_unseen.npy'
-      params.d_vectors.speakers = 'd_vectors_sinc.npy' # TODO change copy-paste and nulls in yaml
-      # write in yaml all but model type, replacing it with ${} to be formated in future
-    """
     main(params, args, setup)

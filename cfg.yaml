@@ -22,5 +22,5 @@ n_epochs: 66666 #1500
 # other
 device: 'cuda:0'
 verbose_every: 400
-save_path: '/content/drive/MyDrive/vk_intership/2021/research/weights/'
+save_path: 'src/model/'
 use_wandb: false

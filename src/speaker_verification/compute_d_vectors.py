@@ -8,9 +8,10 @@ from datasets.timit import TimitEval
 from src.utils import compute_chunk_info, get_params, load_model
 
 parser = ArgumentParser()
-parser.add_argument('model_type')
-parser.add_argument('pretrained_model')
-parser.add_argument('compute_split') # TODO write help
+parser.add_argument('model_type', help="should be cnn or sinc")
+parser.add_argument('pretrained_model', help="path to pretrained model")
+parser.add_argument('compute_split',
+                    help='should be sv.scp or train.scp for unseen and default d-vectors respectively')
 parser.add_argument('--save_to', default='d_vectors_random.npy')
 args = parser.parse_args()
 

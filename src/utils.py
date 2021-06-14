@@ -31,7 +31,7 @@ def get_params(path_to_cfg: str):
 
 
 def load_model(params, args, chunk_len):
-    sinc_net = SincNet(chunk_len, params.data.timit.n_classes, args.model_type) # TODO check compute_d_vectors for working
+    sinc_net = SincNet(chunk_len, params.data.timit.n_classes, args.model_type)
     checkpoint = torch.load(args.pretrained_model, map_location=torch.device(params.device))
     sinc_net.load_state_dict(checkpoint['model_state_dict'])
     sinc_net = sinc_net.to(params.device)
