@@ -1,0 +1,7 @@
+numpy
+jsonlines
+matplotlib
+scikit-learn
+jupyterlab
+wandb
+torchaudio
