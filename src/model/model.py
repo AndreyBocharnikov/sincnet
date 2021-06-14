@@ -4,7 +4,6 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torchsummary import summary
 
 
 class SincConv(nn.Module):
@@ -104,13 +103,3 @@ class SincNet(nn.Module):
 
     def compute_d_vectors(self, wavs):
         return self.backbone(wavs)
-
-
-if __name__ == "__main__":
-    sincnet = SincNet(3200, 462, 'sinc')
-    #print(summary(sincnet, (1, 3200)))
-    model_parameters = filter(lambda p: p.requires_grad, sincnet.parameters())
-    params = sum([np.prod(p.size()) for p in model_parameters])
-    print(params)
-
-# 22906880 vs 45358

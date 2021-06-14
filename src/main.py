@@ -1,5 +1,4 @@
 import yaml
-import time
 import typing as tp
 import os
 
@@ -10,7 +9,7 @@ import wandb  # sudo apt install libpython3.7-dev python3.7 -m pip install wandb
 import numpy as np
 
 from datasets.timit import TimitTrain, TimitEval
-from model import SincNet
+from src.model.model import SincNet
 from utils import NestedNamespace, compute_chunk_info
 
 
@@ -54,8 +53,7 @@ def main(params: NestedNamespace):
         if i % params.verbose_every == 0:
             sinc_net.eval()
             with torch.no_grad():
-                chunks_accuracy = []
-                losses_test = []
+                chunks_accuracy, losses_test = [], []
                 wavs_accuracy = 0
                 for chunks, label, n_chunks in dataset_evaluation:
                     chunks = chunks.to(params.device)
@@ -66,25 +64,27 @@ def main(params: NestedNamespace):
                     chunks_accuracy.append(compute_accuracy(logits, label))
                     wavs_accuracy += (torch.argmax(logits.sum(dim=0)) == label).item()
 
-                wandb.log({'train accuracy': np.mean(accuracy), 'train loss': np.mean(losses),
-                           'test loss': np.mean(losses_test), 'test chunk accuracy': np.mean(chunks_accuracy),
-                           'test wav accuracy': wavs_accuracy / len(dataset_evaluation), 'epoch': i})
+                if params.use_wandb:
+                    wandb.log({'train accuracy': np.mean(accuracy), 'train loss': np.mean(losses),
+                               'test loss': np.mean(losses_test), 'test chunk accuracy': np.mean(chunks_accuracy),
+                               'test wav accuracy': wavs_accuracy / len(dataset_evaluation), 'epoch': i})
+                else:
+                    print(f'epoch ${i}\ntrain accuracy ${np.mean(accuracy)}\ntrain loss ${np.mean(losses)} \n'
+                          f'test loss ${np.mean(chunks_accuracy)}\ntest chunk accuracy ${np.mean(chunks_accuracy)}\n'
+                          f'test wav accuracy ${wavs_accuracy / len(dataset_evaluation)}')
                 torch.save(
                     {'model_state_dict': sinc_net.state_dict(), 'optimizer_state_dict': optim.state_dict(), 'epoch': i},
                     os.path.join(params.save_path, params.model.type + str(i) + '.pt'))
 
 
 if __name__ == "__main__":
-    with open('cfg.yaml') as config:
+    with open('../cfg.yaml') as config:
         params = yaml.load(config, Loader=yaml.FullLoader)
         params = NestedNamespace(params)
     if params.model.type not in ['cnn', 'sinc']:
         raise ValueError("Only two models are supported, use cnn or sinc.")
-    # id = wandb.util.generate_id()
-    id = '1wx10p8m'
-    print("id", id)
-    wandb.init(project='SincNet', id=id, resume="allow", config={'model type': params.model.type})
+    if params.use_wandb:
+        id = wandb.util.generate_id()
+        print("id", id)
+        wandb.init(project='SincNet', id=id, resume="allow", config={'model type': params.model.type})
     main(params)
-
-# cd dr8 && for i in $( ls | grep [A-Z] ); do mv -i $i `echo $i | tr 'A-Z' 'a-z'`; done && cd ..
-# for i in $( find dr8 -type f ); do mv -i $i `echo $i | tr 'A-Z' 'a-z'`; done
