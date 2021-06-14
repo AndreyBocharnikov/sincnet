@@ -11,6 +11,7 @@ For more details you can look at the soucre code of `compute_d_vectors.py` or ru
 If you want to train from scratch, run `main.py`. If you want to train baseline model change `model.type` in `configs/cfg.yaml' to `cnn`.  
 
 ## Docker
+Run `./bins/build_image.sh`, then run `./bins/run_container.sh`. Copy `TRAIN` and `TEST` folders from timit dataset to the `datasets/timit` folder inside the container via ``
 `./bins/timit_lowercase.sh`, `cd src`, main.py
 
 # Weights
