@@ -8,8 +8,8 @@ import torch
 import yaml
 
 from datasets.timit import TimitEval
-from model import SincNet
-from utils import NestedNamespace, compute_chunk_info, get_params, load_model
+from src.model.model import SincNet
+from src.utils import NestedNamespace, compute_chunk_info, get_params, load_model
 
 
 def compute_cosine_dists(model, chunks, label, speakers: tp.List[np.ndarray], device: str):

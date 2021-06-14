@@ -8,11 +8,13 @@ from datasets.timit import TimitEval
 from src.utils import compute_chunk_info, get_params, load_model
 
 parser = ArgumentParser()
+parser.add_argument('model_type')
 parser.add_argument('pretrained_model')
+parser.add_argument('compute_split') # TODO write help
 parser.add_argument('--save_to', default='d_vectors_random.npy')
 args = parser.parse_args()
 
-params = get_params('cfg.yaml')
+params = get_params('cfg_sv.yaml')
 
 chunk_len, chunk_shift = compute_chunk_info(params)
 sinc_net = load_model(params, args, chunk_len)

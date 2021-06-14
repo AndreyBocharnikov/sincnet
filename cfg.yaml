@@ -6,7 +6,7 @@ data:
 
 # model
 model:
-  type: sinc
+  type: cnn
   pretrain: null
 
 # sound
