@@ -4,7 +4,7 @@ from types import SimpleNamespace
 import torch
 import yaml
 
-from src.model.model import SincNet
+from model.model import SincNet
 
 
 class NestedNamespace(SimpleNamespace):

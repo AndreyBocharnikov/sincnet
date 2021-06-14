@@ -8,8 +8,8 @@ import torch
 import yaml
 
 from datasets.timit import TimitEval
-from src.model.model import SincNet
-from src.utils import NestedNamespace, compute_chunk_info, get_params, load_model
+from model.model import SincNet
+from utils import NestedNamespace, compute_chunk_info, get_params, load_model
 
 
 def compute_cosine_dists(model, chunks, label, speakers: tp.List[np.ndarray], device: str):
@@ -80,5 +80,5 @@ if __name__ == "__main__":
     else:
         setup = compute_softmax_probs
 
-    params = get_params('cfg_sv.yaml')
+    params = get_params('configs/cfg_sv.yaml')
     main(params, args, setup)

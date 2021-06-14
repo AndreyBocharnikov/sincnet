@@ -6,7 +6,7 @@ data:
 
 # model
 model:
-  type: cnn
+  type: sinc
   pretrain: null
 
 # sound
@@ -21,6 +21,6 @@ n_epochs: 66666 #1500
 
 # other
 device: 'cuda:0'
-verbose_every: 1
-save_path: 'src/model/'
+verbose_every: 400
+save_path: 'model/'
 use_wandb: false

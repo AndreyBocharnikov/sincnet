@@ -5,7 +5,7 @@ import numpy as np
 import torch
 
 from datasets.timit import TimitEval
-from src.utils import compute_chunk_info, get_params, load_model
+from utils import compute_chunk_info, get_params, load_model
 
 parser = ArgumentParser()
 parser.add_argument('model_type', help="should be cnn or sinc")
@@ -15,7 +15,7 @@ parser.add_argument('compute_split',
 parser.add_argument('--save_to', default='d_vectors_random.npy')
 args = parser.parse_args()
 
-params = get_params('cfg_sv.yaml')
+params = get_params('configs/cfg_sv.yaml')
 
 chunk_len, chunk_shift = compute_chunk_info(params)
 sinc_net = load_model(params, args, chunk_len)

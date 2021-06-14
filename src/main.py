@@ -9,7 +9,7 @@ import wandb  # sudo apt install libpython3.7-dev python3.7 -m pip install wandb
 import numpy as np
 
 from datasets.timit import TimitTrain, TimitEval
-from src.model.model import SincNet
+from model.model import SincNet
 from utils import NestedNamespace, compute_chunk_info
 
 
@@ -69,16 +69,16 @@ def main(params: NestedNamespace):
                                'test loss': np.mean(losses_test), 'test chunk accuracy': np.mean(chunks_accuracy),
                                'test wav accuracy': wavs_accuracy / len(dataset_evaluation), 'epoch': i})
                 else:
-                    print(f'epoch ${i}\ntrain accuracy ${np.mean(accuracy)}\ntrain loss ${np.mean(losses)} \n'
-                          f'test loss ${np.mean(chunks_accuracy)}\ntest chunk accuracy ${np.mean(chunks_accuracy)}\n'
-                          f'test wav accuracy ${wavs_accuracy / len(dataset_evaluation)}')
+                    print(f'epoch {i}\ntrain accuracy {np.mean(accuracy)}\ntrain loss {np.mean(losses)} \n'
+                          f'test loss {np.mean(chunks_accuracy)}\ntest chunk accuracy {np.mean(chunks_accuracy)}\n'
+                          f'test wav accuracy {wavs_accuracy / len(dataset_evaluation)}')
                 torch.save(
                     {'model_state_dict': sinc_net.state_dict(), 'optimizer_state_dict': optim.state_dict(), 'epoch': i},
                     os.path.join(params.save_path, params.model.type + str(i) + '.pt'))
 
 
 if __name__ == "__main__":
-    with open('../cfg.yaml') as config:
+    with open('configs/cfg.yaml') as config:
         params = yaml.load(config, Loader=yaml.FullLoader)
         params = NestedNamespace(params)
     if params.model.type not in ['cnn', 'sinc']:
