@@ -1,7 +1,7 @@
 #!/bin/bash
 
 docker run -it \
-    --detach \
-	--name gpu \
-	--gpus all \
-    sincnet
+  --detach \
+	--name cuda0 \
+	--gpus device=0
+	sincnet
