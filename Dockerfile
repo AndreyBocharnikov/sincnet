@@ -16,10 +16,10 @@ RUN apt-get -y update && \
 COPY requirements.txt /root/requirements.txt
 RUN . ~/.bashrc && pip install -r /root/requirements.txt
 
-RUN pip install -U PyYAML
-
 RUN mkdir /home/sincnet
 
 ADD . /home/sincnet
 
 WORKDIR /home/sincnet
+
+ENV PYTHONPATH "${PYTHONPATH}:/home/sincnet/src"
