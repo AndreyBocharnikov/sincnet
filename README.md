@@ -16,18 +16,18 @@ If you want to train from scratch, run `main.py`. If you want to train baseline 
 To run code in docker container:
 *   run `./bins/build_image.sh` and `./bins/run_container.sh` scripts
 *   copy `TRAIN` and `TEST` folders from timit dataset to the `datasets/timit` folder inside the container via runnig  
-`docker cp path/to/TRAIN/ experiments:/home/sincnet/src/datasets/timit/`  
-*   run `docker exec -i -it experiments  bash -c "./bins/timit_lowercase.sh"` to cast all folders and files in dataset to lower case.  
+`docker cp path/to/TRAIN/ cuda0:/home/sincnet/src/datasets/timit/`  
+*   run `docker exec -i -it cuda0  bash -c "./bins/timit_lowercase.sh"` to cast all folders and files in dataset to lower case.  
 
-To train model from scratch run `sudo docker exec -i -it experiments bash -c "cd src && python main.py"`.  
+To train model from scratch run `docker exec -i -it cuda0 bash -c "cd src && python main.py"`.  
 
 To evaluate pretrained model on speaker verification task:
 *   copy pretrained weights in `src/model/` 
 *   compute `d-vecots`, do it via   
-`sudo docker exec -i -it experiments bash -c "cd src && speaker_verification/compute_d_vectors.py sinc model/sinc.pt train.scp --save_to d_vectors_sinc.npy"`  
-`sudo docker exec -i -it experiments bash -c "cd src && speaker_verification/compute_d_vectors.py sinc model/sinc.pt sv.scp --save_to d_vectors_sinc_unseen.npy"`  
+`docker exec -i -it cuda0 bash -c "cd src && python speaker_verification/compute_d_vectors.py sinc model/sinc.pt train.scp --save_to d_vectors_sinc.npy"`  
+`docker exec -i -it cuda0 bash -c "cd src && python speaker_verification/compute_d_vectors.py sinc model/sinc.pt sv.scp --save_to d_vectors_sinc_unseen.npy"`  
 *  compute err via  
-`sudo docker exec -i -it experiments bash -c "cd src && speaker_verification/speaker_verification.py sinc model/sinc.pt d_vectors_sinc.npy d_vectors_sinc_unseen.npy type"` (but first change type argument to `cos` or `softmax`)
+`docker exec -i -it cuda0 bash -c "cd src && python speaker_verification/speaker_verification.py sinc model/sinc.pt d_vectors_sinc.npy d_vectors_sinc_unseen.npy type"` (but first change type argument to `cos` or `softmax`)
 
 
 # Weights
